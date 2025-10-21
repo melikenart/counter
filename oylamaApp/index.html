@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Simple Voting DApp</title>
+  <script src="https://cdn.jsdelivr.net/npm/web3@1.10.0/dist/web3.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f2f6fc;
+      text-align: center;
+      padding: 40px;
+    }
+    h1 {
+      color: #333;
+    }
+    button {
+      background-color: #4CAF50;
+      color: white;
+      padding: 12px 20px;
+      margin: 10px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+    #results {
+      margin-top: 25px;
+      background: white;
+      display: inline-block;
+      padding: 20px 40px;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    #account {
+      margin-bottom: 20px;
+      color: #444;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🗳️ Simple Voting DApp</h1>
+
+  <button id="connectButton">Connect MetaMask</button>
+  <p id="account"></p>
+
+  <h3>Cast Your Vote</h3>
+  <button id="voteYes">Vote YES ✅</button>
+  <button id="voteNo">Vote NO ❌</button>
+
+  <div id="results">
+    <p><strong>Yes Votes:</strong> <span id="yesCount">0</span></p>
+    <p><strong>No Votes:</strong> <span id="noCount">0</span></p>
+    <p><strong>Total Votes:</strong> <span id="totalVotes">0</span></p>
+  </div>
+
+  <script>
+    let web3;
+    let contract;
+    let account;
+
+    // ✅ BURAYA KENDİ KONTRAT ADRESİNİ YAPIŞTIR
+    const contractAddress = "BURAYA_KONTRAT_ADRESİNİ_YAPIŞTIR";
+
+    const contractABI = [
+      {
+        "inputs": [],
+        "stateMutability": "nonpayable",
+        "type": "constructor"
+      },
+      {
+        "anonymous": false,
+        "inputs": [
+          {
+            "indexed": false,
+            "internalType": "address",
+            "name": "voter",
+            "type": "address"
+          },
+          {
+            "indexed": false,
+            "internalType": "string",
+            "name": "voteType",
+            "type": "string"
+          }
+        ],
+        "name": "VoteCasted",
+        "type": "event"
+      },
+      {
+        "inputs": [],
+        "name": "voteNo",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "inputs": [],
+        "name": "voteYes",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "inputs": [],
+        "name": "getResults",
+        "outputs": [
+          {
+            "internalType": "uint256",
+            "name": "",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "",
+            "type": "uint256"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [],
+        "name": "getTotalVotes",
+        "outputs": [
+          {
+            "internalType": "uint256",
+            "name": "",
+            "type": "uint256"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [],
+        "name": "noVotes",
+        "outputs": [
+          {
+            "internalType": "uint256",
+            "name": "",
+            "type": "uint256"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [],
+        "name": "owner",
+        "outputs": [
+          {
+            "internalType": "address",
+            "name": "",
+            "type": "address"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [],
+        "name": "yesVotes",
+        "outputs": [
+          {
+            "internalType": "uint256",
+            "name": "",
+            "type": "uint256"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      }
+    ];
+
+    async function connectMetaMask() {
+             if (!window.ethereum) return alert("MetaMask gerekli.");
+        provider = new ethers.BrowserProvider(window.ethereum);
+        await provider.send("eth_requestAccounts", []);
+        signer = await provider.getSigner();
+        contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, signer);
+        log("✅ Bağlandı: " + await signer.getAddress());
+    }
+
+    async function voteYes() {
+      await contract.methods.voteYes().send({ from: account });
+      updateResults();
+    }
+
+    async function voteNo() {
+      await contract.methods.voteNo().send({ from: account });
+      updateResults();
+    }
+
+    async function updateResults() {
+      const results = await contract.methods.getResults().call();
+      const total = await contract.methods.getTotalVotes().call();
+      document.getElementById("yesCount").innerText = results[0];
+      document.getElementById("noCount").innerText = results[1];
+      document.getElementById("totalVotes").innerText = total;
+    }
+
+    document.getElementById("connectButton").onclick = connectMetaMask;
+    document.getElementById("voteYes").onclick = voteYes;
+    document.getElementById("voteNo").onclick = voteNo;
+  </script>
+
+</body>
+</html>
+
+
+
+
